@@ -9,44 +9,87 @@
       * {
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
       }
-      .login{
-        display: flex;
-        flex-direction: column;
+      body{
+        background-image: url('https://irishcentersf.org/wp-content/uploads/2015/08/ireland-wallpaper-hd.jpg');
+        background-repeat: no-repeat;
+        /* object-fit: cover; */
+        padding: 10px;
+      }
+      .main-container{
+        display: flex; 
         justify-content: center;
-        margin: 2rem;
-        background-color: #FAFAFA;
-        width: fit-content;
-        height: fit-content;
-        border-radius: 5px;
-        border: 1px solid lightgray;
-        opacity: 0.9;
+        align-items: center; 
+        height: 100vh;
       }
       .login h2{
-        margin: 0.5rem 0.5rem 1rem;
-      }
-      .login-form{
-        margin: 2rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
+        /* margin: 0.5rem 0.5rem 1rem; */
+        margin: 0 -1rem 2rem; 
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #192738;
+        color: #192738;
       }
       .container-login{
         display: none;
-        background-color: #fafafa;
-        padding: 1rem;
+      }
+      .container-login, .login{
+        max-width: 650px;
+        margin: 0 auto;
+        text-align: center;
+        background-color: #C6D7E7;
         border-radius: 5px;
         border: 1px solid lightgray;
-        opacity: 0.9;
-        height: fit-content;
+        padding: 1rem;
+        opacity: 0.8;
       }
-      .form-add-task{
-        display: flex;
-        flex-direction: row;
-        gap: 0.2rem;
+      .container-login h2{
+        margin: 0 -1rem 2rem; 
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #192738;
+        color: #192738;
       }
-      .sign-out{
-        padding-top: 3rem;
+      
+      input{
+        width: 100%;
+        height: 40px;
+        display: block;
+        max-width: 500px;
+        margin: 10px auto;
+        padding-left: 10px;
+      }
+      .container-login textarea{
+        width: 100%;
+        height: 40px;
+        display: block;
+        max-width: 500px;
+        margin: 10px auto;
+        padding-left: 10px;
+      }
+     input[type=submit]{
+        background-color: darkcyan;
+        color: white;
+        font-size: 18px;
+        border: 0;
+        cursor: pointer;
+      }
+      .user-tasks ul{
+        list-style-type: none;
+      }
+      .user-tasks li{
+        font-size: 16px;
+        margin: 10px 0;
+        text-align: start;
+      }
+      .user-tasks li button{
+        background-color: #6E93C0;
+        color: white;
+        cursor: pointer;
+      }
+      .user-tasks h3{
+        padding-top: 2rem;
+        color: #192738;
       }
     </style>
 </head>
@@ -86,8 +129,6 @@
               user = userCredential.user;
               document.querySelector('.container-login').style.display = 'block';
               document.querySelector('.login').style.display = 'none';
-              console.log(user);
-              alert('Successfully signed in');
               formLogin.reset();
             })
             .catch((error) => {
@@ -116,7 +157,6 @@
               deleteTask.forEach((task) => {
                 task.addEventListener('click', (e) => {
                   e.preventDefault();
-                  console.log('clicked', task.id)
                   db.collection('tasks').doc(task.id).delete();
                 })
               })
@@ -132,7 +172,6 @@
             user = null;
             document.querySelector('.container-login').style.display = 'none';
             document.querySelector('.login').style.display = 'block';
-            alert('Successfully signed out o/');
           }).catch((error) => {
             // An error happened.
           });
@@ -158,15 +197,14 @@
               time: dateTime,
               userId: user.uid
             })
-            alert("Task has been successfully added!");
           }
 
         })
       </script>
       
-      <div style="display: flex; justify-content: center;align-items: center; height: 100vh; background-image: url('https://irishcentersf.org/wp-content/uploads/2015/08/ireland-wallpaper-hd.jpg')">
+      <div class="main-container">
         <div class="login">
-          <h2>Enter with your email to login</h2>
+          <h2>Sign in</h2>
           <form class="login-form">
             <input type="email" name="email" placeholder="your email here" />
             <input type="password" name="password" placeholder="password" />
@@ -175,10 +213,10 @@
         </div>
   
         <div class="container-login">
-          <h2 style="margin: 0 -1rem 2rem; border-bottom: 1px solid black; text-align: center; padding: 0 0 1rem;">Welcome to the To Do List App</h2>
+          <h2>To Do List App</h2>
          
           <form class="form-add-task">
-            <textarea name="task" placeholder="Write here what you need to do... ;)" style="width:300px; height: 20px"></textarea>
+            <textarea name="task" placeholder="Write here what you need to do... ;)"></textarea>
             <input type="datetime-local" id="datetime" name="datetime"  />
             <input type="submit" name="acao" value="Add Task" />
           </form>
