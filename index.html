@@ -9,8 +9,6 @@
       * {
         margin: 0;
         padding: 0;
-        padding-top: 0;
-        /* width: 100%; */
       }
       .login{
         display: flex;
@@ -29,7 +27,6 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        /* width: 75%; */
       }
       .container-login{
         display: none;
@@ -41,11 +38,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.4.0/firebase-firestore.js"></script>  
     <script src="https://www.gstatic.com/firebasejs/8.4.0/firebase-auth.js"></script>  
     <script type="module">
-        // import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        // import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"
-        // import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/8.4.0/firebase-auth.js"
-        // import { } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js"
-
         const firebaseConfig = {
           apiKey: "AIzaSyCKTNZRhOnCRX1Gam0jvbyrzte6TarZ5Ws",
           authDomain: "todolist-fbba5.firebaseapp.com",
@@ -54,9 +46,11 @@
           messagingSenderId: "736782319926",
           appId: "1:736782319926:web:11a8936a6a4f8c7dd7b397"
         };
-      
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
+
+        const db = firebase.firestore();
+      
 
         // form functions
         const formLogin = document.querySelector('form.login-form');
@@ -89,15 +83,36 @@
         firebase.auth().onAuthStateChanged((val) => {
           if (val) {
             user = val;
-            alert('welcome: '+ user.email);
             document.querySelector('.container-login').style.display = 'block';
             document.querySelector('.login').style.display = 'none';
+
+            db.collection('tasks').where('userId', "==", user.uid).onSnapshot((data)=> {
+              let list = document.querySelector('#task-item');
+              list.innerHTML = '';
+              // let tasks = data.docs;
+
+              // tasks = tasks.sort(function(a,b){
+              //   if (a.data().time < b.data().time){
+              //     return -1;
+              //   } else {
+              //     return +1;
+              //   }
+              // })
+
+              // tasks.map((task) => {
+              //   list.innerHTML+=`<li>${task.data().task}</li>` 
+              // })
+
+              data.docs.map((value) => {
+                list.innerHTML+=`<li>${value.data().task}</li>`            
+              })
+            })
           }
         })
 
         btnSignOut.addEventListener('click', (e) => {
           e.preventDefault();
-          // firebase.auth().signOut(auth).then(() => {
+      
           firebase.auth().signOut().then(() => {
             // Sign-out successful.
             user = null;
@@ -109,7 +124,7 @@
           });
         })
 
-        const db = firebase.firestore();
+      
         const formAddTask = document.querySelector('.form-add-task');
 
         formAddTask.addEventListener('submit', (e) => {
@@ -117,33 +132,49 @@
 
           const task = document.querySelector('.form-add-task [name=task]').value;
           const dateTime = document.querySelector('.form-add-task [name=datetime]').value;
+          const dateNow = new Date().getTime();
 
-          db.collection('tasks').add({
-            task: task,
-            time: dateTime
-          })
+          if (dateNow > new Date(dateTime).getTime()){
+            alert('Ops, you need to inform one future date or time');
+          } else if(task === '' || dateTime === ''){
+            alert('Please inform data to send')
+          } else {
+              db.collection('tasks').add({
+              task: task,
+              time: dateTime,
+              // time: new Date(dateTime).getTime(),
+              userId: user.uid
+            })
+            alert("Task has been successfully added!");
+          }
 
-          alert("Task has been successfully added!");
         })
       </script>
-
-      <div class="login">
-        <h2>Enter with your email to login</h2>
-        <form class="login-form">
-          <input type="email" name="email" placeholder="your email here" />
-          <input type="password" name="password" placeholder="password" />
-          <input type="submit" name="acao" value="Sign in" />
-        </form>
+      
+      <div style="display: flex; justify-content: center;margin-top:4rem">
+        <div class="login">
+          <h2>Enter with your email to login</h2>
+          <form class="login-form">
+            <input type="email" name="email" placeholder="your email here" />
+            <input type="password" name="password" placeholder="password" />
+            <input type="submit" name="acao" value="Sign in" />
+          </form>
+        </div>
+  
+        <div class="container-login">
+          <h2>Hello, here you are ;)</h2>
+          <a class="sign-out" href="javascript:void(0)">Sign out</a>
+          <form class="form-add-task">
+            <textarea name="task"></textarea>
+            <input type="datetime-local" name="datetime">
+            <input type="submit" name="acao" value="Add Task" />
+          </form>
+          <div class="user-tasks">
+            <h3>User List:</h3>
+            <ul id="task-item"></ul>
+          </div>
+        </div>
       </div>
 
-      <div class="container-login">
-        <h2>Hello, here you are ;)</h2>
-        <a class="sign-out" href="javascript:void(0)">Sign out</a>
-        <form class="form-add-task">
-          <textarea name="task"></textarea>
-          <input type="datetime-local" name="datetime">
-          <input type="submit" name="acao" value="Add Task" />
-        </form>
-      </div>
 </body>
 </html>
