@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo list</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+      }
+      .login{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin: 2rem;
+        background-color: orange;
+        width: fit-content;
+        border-radius: 10px;
+      }
+      .login h2{
+        margin: 0.5rem 0.5rem 1rem;
+      }
+      .form{
+        margin: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 75%;
+      }
+      .container-login{
+        display: none;
+      }
+    </style>
+</head>
+<body>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"
+        import { } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js"
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyCKTNZRhOnCRX1Gam0jvbyrzte6TarZ5Ws",
+          authDomain: "todolist-fbba5.firebaseapp.com",
+          projectId: "todolist-fbba5",
+          storageBucket: "todolist-fbba5.appspot.com",
+          messagingSenderId: "736782319926",
+          appId: "1:736782319926:web:11a8936a6a4f8c7dd7b397"
+        };
+      
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+
+        // form functions
+        const formLogin = document.querySelector('form');
+        const btnSignOut = document.querySelector('.sign-out');
+
+        formLogin.addEventListener('submit', (e) => {
+          e.preventDefault();
+          let email = document.querySelector('[name=email]').value;
+          let password = document.querySelector('[name=password]').value;
+
+          // Auth login
+          const auth = getAuth();
+
+          signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+              // Signed in 
+              const user = userCredential.user;
+              document.querySelector('.container-login').style.display = 'block';
+              document.querySelector('.login').style.display = 'none';
+              console.log(user);
+              alert('Successfully signed in');
+            })
+            .catch((error) => {
+              const errorCode = error.code;
+              const errorMessage = error.message;
+              alert(errorMessage);
+            });
+        })
+
+        btnSignOut.addEventListener('click', (e) => {
+          e.preventDefault();
+
+          const auth = getAuth();
+          signOut(auth).then(() => {
+            // Sign-out successful.
+            alert('Successfully signed out o/');
+            document.querySelector('.container-login').style.display = 'none';
+              document.querySelector('.login').style.display = 'block';
+          }).catch((error) => {
+            // An error happened.
+          });
+        })
+      </script>
+
+      <div class="login">
+        <h2>Enter with your email to login</h2>
+        <form class="form">
+          <input type="email" name="email" placeholder="your email here" />
+          <input type="password" name="password" placeholder="password" />
+          <input type="submit" name="acao" value="Sign in" />
+        </form>
+      </div>
+      <div class="container-login">
+        <h2>Hello, here you are ;)</h2>
+        <a class="sign-out" href="javascript:void(0)">Sign out</a>
+      </div>
+</body>
+</html>
