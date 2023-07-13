@@ -15,9 +15,11 @@
         flex-direction: column;
         justify-content: center;
         margin: 2rem;
-        background-color: orange;
+        background-color: #FAFAFA;
         width: fit-content;
         border-radius: 5px;
+        border: 1px solid lightgray;
+        opacity: 0.9;
       }
       .login h2{
         margin: 0.5rem 0.5rem 1rem;
@@ -30,6 +32,20 @@
       }
       .container-login{
         display: none;
+        background-color: #fafafa;
+        padding: 1rem;
+        border-radius: 5px;
+        border: 1px solid lightgray;
+        opacity: 0.9;
+        height: fit-content;
+      }
+      .form-add-task{
+        display: flex;
+        flex-direction: row;
+        gap: 0.2rem;
+      }
+      .sign-out{
+        padding-top: 3rem;
       }
     </style>
 </head>
@@ -89,22 +105,19 @@
             db.collection('tasks').where('userId', "==", user.uid).onSnapshot((data)=> {
               let list = document.querySelector('#task-item');
               list.innerHTML = '';
-              // let tasks = data.docs;
-
-              // tasks = tasks.sort(function(a,b){
-              //   if (a.data().time < b.data().time){
-              //     return -1;
-              //   } else {
-              //     return +1;
-              //   }
-              // })
-
-              // tasks.map((task) => {
-              //   list.innerHTML+=`<li>${task.data().task}</li>` 
-              // })
 
               data.docs.map((value) => {
-                list.innerHTML+=`<li>${value.data().task}</li>`            
+                list.innerHTML+=`<li>${value.data().task}<button id=${value.id} class="delete" style="width:20px; height: 20px; border-radius: 100px; margin-left: 0.5rem">X</button></li>`            
+              })
+
+              const deleteTask = document.querySelectorAll('.delete');
+
+              deleteTask.forEach((task) => {
+                task.addEventListener('click', (e) => {
+                  e.preventDefault();
+                  console.log('clicked', task.id)
+                  db.collection('tasks').doc(task.id).delete();
+                })
               })
             })
           }
@@ -142,7 +155,6 @@
               db.collection('tasks').add({
               task: task,
               time: dateTime,
-              // time: new Date(dateTime).getTime(),
               userId: user.uid
             })
             alert("Task has been successfully added!");
@@ -151,7 +163,7 @@
         })
       </script>
       
-      <div style="display: flex; justify-content: center;margin-top:4rem">
+      <div style="display: flex; justify-content: center;padding-top:4rem; height: 90vh; background-image: url('https://irishcentersf.org/wp-content/uploads/2015/08/ireland-wallpaper-hd.jpg')">
         <div class="login">
           <h2>Enter with your email to login</h2>
           <form class="login-form">
@@ -162,17 +174,18 @@
         </div>
   
         <div class="container-login">
-          <h2>Hello, here you are ;)</h2>
-          <a class="sign-out" href="javascript:void(0)">Sign out</a>
+          <h2 style="margin: 0 -1rem 2rem; border-bottom: 1px solid black; text-align: center;">Welcome to the To Do List app</h2>
+         
           <form class="form-add-task">
-            <textarea name="task"></textarea>
-            <input type="datetime-local" name="datetime">
+            <textarea name="task" placeholder="Write here what you need to do... ;)" style="width:300px; height: 20px"></textarea>
+            <input type="datetime-local" id="datetime" name="datetime"  />
             <input type="submit" name="acao" value="Add Task" />
           </form>
           <div class="user-tasks">
-            <h3>User List:</h3>
-            <ul id="task-item"></ul>
+            <h3 style="margin: 0.5rem 0">You need to do:</h3>
+            <ul id="task-item" style="padding-left: 1rem"></ul>
           </div>
+          <a class="sign-out" href="javascript:void(0)">Sign out</a>
         </div>
       </div>
 
