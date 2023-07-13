@@ -10,7 +10,7 @@
         margin: 0;
         padding: 0;
         padding-top: 0;
-        width: 100%;
+        /* width: 100%; */
       }
       .login{
         display: flex;
@@ -24,12 +24,12 @@
       .login h2{
         margin: 0.5rem 0.5rem 1rem;
       }
-      .form{
+      .login-form{
         margin: 2rem;
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        width: 75%;
+        /* width: 75%; */
       }
       .container-login{
         display: none;
@@ -37,10 +37,14 @@
     </style>
 </head>
 <body>
+    <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.4.0/firebase-firestore.js"></script>  
+    <script src="https://www.gstatic.com/firebasejs/8.4.0/firebase-auth.js"></script>  
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"
-        import { } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js"
+        // import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        // import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"
+        // import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/8.4.0/firebase-auth.js"
+        // import { } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js"
 
         const firebaseConfig = {
           apiKey: "AIzaSyCKTNZRhOnCRX1Gam0jvbyrzte6TarZ5Ws",
@@ -52,28 +56,28 @@
         };
       
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
 
         // form functions
-        const formLogin = document.querySelector('form');
+        const formLogin = document.querySelector('form.login-form');
         const btnSignOut = document.querySelector('.sign-out');
+
+        let user = null;
 
         formLogin.addEventListener('submit', (e) => {
           e.preventDefault();
           let email = document.querySelector('[name=email]').value;
           let password = document.querySelector('[name=password]').value;
 
-          // Auth login
-          const auth = getAuth();
-
-          signInWithEmailAndPassword(auth, email, password)
+          firebase.auth().signInWithEmailAndPassword(email, password)
             .then((userCredential) => {
               // Signed in 
-              const user = userCredential.user;
+              user = userCredential.user;
               document.querySelector('.container-login').style.display = 'block';
               document.querySelector('.login').style.display = 'none';
               console.log(user);
               alert('Successfully signed in');
+              formLogin.reset();
             })
             .catch((error) => {
               const errorCode = error.code;
@@ -82,32 +86,64 @@
             });
         })
 
+        firebase.auth().onAuthStateChanged((val) => {
+          if (val) {
+            user = val;
+            alert('welcome: '+ user.email);
+            document.querySelector('.container-login').style.display = 'block';
+            document.querySelector('.login').style.display = 'none';
+          }
+        })
+
         btnSignOut.addEventListener('click', (e) => {
           e.preventDefault();
-
-          const auth = getAuth();
-          signOut(auth).then(() => {
+          // firebase.auth().signOut(auth).then(() => {
+          firebase.auth().signOut().then(() => {
             // Sign-out successful.
-            alert('Successfully signed out o/');
+            user = null;
             document.querySelector('.container-login').style.display = 'none';
-              document.querySelector('.login').style.display = 'block';
+            document.querySelector('.login').style.display = 'block';
+            alert('Successfully signed out o/');
           }).catch((error) => {
             // An error happened.
           });
+        })
+
+        const db = firebase.firestore();
+        const formAddTask = document.querySelector('.form-add-task');
+
+        formAddTask.addEventListener('submit', (e) => {
+          e.preventDefault();
+
+          const task = document.querySelector('.form-add-task [name=task]').value;
+          const dateTime = document.querySelector('.form-add-task [name=datetime]').value;
+
+          db.collection('tasks').add({
+            task: task,
+            time: dateTime
+          })
+
+          alert("Task has been successfully added!");
         })
       </script>
 
       <div class="login">
         <h2>Enter with your email to login</h2>
-        <form class="form">
+        <form class="login-form">
           <input type="email" name="email" placeholder="your email here" />
           <input type="password" name="password" placeholder="password" />
           <input type="submit" name="acao" value="Sign in" />
         </form>
       </div>
+
       <div class="container-login">
         <h2>Hello, here you are ;)</h2>
         <a class="sign-out" href="javascript:void(0)">Sign out</a>
+        <form class="form-add-task">
+          <textarea name="task"></textarea>
+          <input type="datetime-local" name="datetime">
+          <input type="submit" name="acao" value="Add Task" />
+        </form>
       </div>
 </body>
 </html>
